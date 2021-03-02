@@ -11,6 +11,10 @@ import weka.core.Instances;
 import weka.core.converters.ArffSaver;
 import weka.core.converters.CSVSaver;
 import weka.core.converters.ConverterUtils.DataSource;
+import weka.filters.Filter;
+import weka.filters.unsupervised.attribute.NominalToBinary;
+import weka.filters.unsupervised.attribute.NumericToNominal;
+import weka.filters.unsupervised.attribute.Remove;
 
 /**
  *
@@ -19,16 +23,49 @@ import weka.core.converters.ConverterUtils.DataSource;
 public class MyKnowleadgeModel {
     DataSource source;
     Instances dataset;
+    String[] model_options;
+    String[] data_options;
 
     public MyKnowleadgeModel() {
     }
     
-    public MyKnowleadgeModel(String filename) throws Exception {
+    public MyKnowleadgeModel(String filename,
+                            String m_opts,
+                            String d_opts) throws Exception {
         this.source = new DataSource(filename);
         this.dataset = source.getDataSet();
+        this.model_options = weka.core.Utils.splitOptions(m_opts);
+        this.data_options = weka.core.Utils.splitOptions(d_opts);
+    }
+
+    public Instances removeData(Instances originalData)throws Exception {
+        Remove remove = new Remove();
+        remove.setOptions(data_options);
+        remove.setInputFormat(originalData);
+        return Filter.useFilter(originalData, remove);
+ 
     }
     
-    public void saveDta(String filename) throws IOException{
+    public Instances covertData(Instances originalData) throws Exception{
+        NumericToNominal n2n = new NumericToNominal();
+        n2n.setOptions(data_options);
+        n2n.setInputFormat(originalData);
+        return Filter.useFilter(originalData, n2n);
+            
+    }
+    
+    public Instances convert2Binary(Instances originalData)throws Exception {
+        NominalToBinary n2b = new NominalToBinary();
+        n2b.setOptions(data_options);
+        n2b.setBinaryAttributesNominal(true);
+        n2b.setInputFormat(originalData);
+        return Filter.useFilter(originalData, n2b);
+        
+        
+                
+    }
+    
+    public void saveData(String filename) throws IOException{
         ArffSaver outData = new ArffSaver();
         outData.setInstances(this.dataset);
         outData.setFile(new File(filename));
