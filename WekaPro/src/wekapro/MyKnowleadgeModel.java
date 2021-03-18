@@ -111,6 +111,14 @@ public class MyKnowleadgeModel {
         
     }
     
+    public void saveModel(String filename, Object model) throws Exception {
+        weka.core.SerializationHelper.write(filename, model);
+    }
+
+    public Object loadModel(String filename) throws Exception {
+        return weka.core.SerializationHelper.read(filename);
+    }
+    
     @Override
     public String toString() {
         return dataset.toSummaryString();
